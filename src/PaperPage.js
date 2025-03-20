@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './assets/nb-shop.css'; // ให้แน่ใจว่าได้ import สไตล์ที่คุณใช้
-import Cart from './Cart';
+import { useNavigate } from 'react-router-dom';
 
 // นำเข้ารูปภาพที่ต้องการใช้
 import A4Image from './product_img/A4.jfif';
@@ -10,6 +10,7 @@ import CartImage from './product_img/Cartpng.png';
 
 const PaperPage = () => {
   const [cart, setCart] = useState([]);
+  const navigate = useNavigate(); // ใช้ hook สำหรับการนำทาง
 
   const addToCart = (productId, price) => {
     const newCart = [...cart, { productId, price }];
@@ -27,7 +28,8 @@ const PaperPage = () => {
         <nav>
           <h1>โอเคเครื่องเขียน</h1>
           <ul>
-            <li><a href="main_index.html">กลับ</a></li>
+            {/* ใช้ navigate(-1) เพื่อกลับไปหน้าก่อนหน้า */}
+            <button className="card__button" onClick={() => navigate(-1)}>Back</button>
           </ul>
         </nav>
       </header>

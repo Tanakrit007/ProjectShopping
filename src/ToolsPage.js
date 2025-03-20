@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import './assets/nb-shop.css'; // Make sure to import your custom styles
-import Cart from './Cart';
+import { useNavigate } from 'react-router-dom';
 
 const ToolsPage = () => {
   // State for the cart
   const [cart, setCart] = useState([]);
+  const navigate = useNavigate(); // ใช้ hook สำหรับการนำทาง
 
   // Function to add a product to the cart
   const addToCart = (productId, price) => {
@@ -24,7 +25,8 @@ const ToolsPage = () => {
         <nav>
           <h1>โอเคเครื่องเขียน</h1>
           <ul>
-            <li><a href="main_index.html">Back</a></li>
+            {/* ใช้ navigate(-1) เพื่อกลับไปหน้าก่อนหน้า */}
+            <button className="card__button" onClick={() => navigate(-1)}>Back</button>
           </ul>
         </nav>
       </header>

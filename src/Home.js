@@ -24,7 +24,6 @@ function Home() {
         <nav>
           <h1>โอเคเครื่องเขียน</h1>
           <ul className={menuVisible ? 'show' : ''}>
-            <li><a href="main_index.html">Home</a></li>
           </ul>
         </nav>
       </header>
