@@ -1,29 +1,46 @@
 import React, { useState } from "react";
-import "./assets/nb-shop.css"; // นำเข้า CSS สำหรับหน้าอุปกรณ์
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'; // นำเข้า useNavigate
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./assets/nb-shop.css";
 
-// นำเข้ารูปภาพที่ต้องการใช้
-import ScissorsImage from "./product_img/cut.jfif";
-import CutterImage from "./product_img/cutter.png";
-import GlueImage from "./product_img/TOA.jfif";
-import GlueStickImage from "./product_img/กาวแท่ง.jfif";
-import StaplerImage from "./product_img/MAX.jfif";
-import StaplesImage from "./product_img/ลูกแม็ก.jfif";
-import CartImage from "./product_img/Cartpng.png";
+// นำเข้า generateCartReceipt จาก Cart.js
+import { generateCartReceipt } from './Cart';
 
-const ToolsPage = () => {
+// import รูปภาพที่ใช้ใน products
+import cut from './product_img/cut.jfif';
+import cutter from './product_img/cutter.png';
+import toa from './product_img/TOA.jfif';
+import gao from './product_img/กาวแท่ง.jfif';
+import max from './product_img/MAX.jfif';
+import ลูกแม็ก from './product_img/ลูกแม็ก.jfif';
+import cartIcon from './product_img/Cartpng.png';
+
+const products = [
+  { id: "กรรไกร", name: "กรรไกร", price: 39, img: cut },
+  { id: "คัดเตอร์", name: "คัดเตอร์", price: 29, img: cutter },
+  { id: "กาว", name: "กาว", price: 29, img: toa },
+  { id: "กาวแท่ง", name: "กาวแท่ง", price: 20, img: gao },
+  { id: "แม็ค", name: "แม็ค", price: 35, img: max },
+  { id: "ลูกแม็ก", name: "ลูกแม็ก", price: 15, img: ลูกแม็ก },
+];
+
+const StationeryShop = () => {
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ใช้ useNavigate
 
-  const addToCart = (productId, price) => {
-    setCart([...cart, { productId, price }]);
-  };
-
-  const printCart = () => {
-    if (cart.length === 0) {
-      alert("ตะกร้าสินค้าของคุณว่างเปล่า");
+  const addToCart = (product) => {
+    // ตรวจสอบว่ามีสินค้าชนิดเดียวกันในตะกร้าหรือไม่
+    const existingItemIndex = cart.findIndex(item => item.id === product.id);
+    
+    if (existingItemIndex !== -1) {
+      // ถ้ามีสินค้าแล้ว, เพิ่มจำนวนและราคา
+      const updatedCart = [...cart];
+      updatedCart[existingItemIndex].quantity += 1;
+      updatedCart[existingItemIndex].price += product.price;
+      setCart(updatedCart);
     } else {
-      console.log("การชำระเงินสินค้าของคุณ: ", cart);
+      // ถ้าไม่มีสินค้าในตะกร้า, เพิ่มสินค้าใหม่
+      setCart([...cart, { ...product, quantity: 1 }]);
     }
   };
 
@@ -32,67 +49,44 @@ const ToolsPage = () => {
       <header>
         <nav>
           <h1>โอเคเครื่องเขียน</h1>
-          <button className="card__button" onClick={() => navigate(-1)}>
-            Back
-          </button>
+          <ul>
+            <li><button onClick={() => navigate(-1)}>Back</button></li> {/* ใช้ปุ่ม Back */}
+          </ul>
         </nav>
       </header>
 
       <div className="container mt-5">
         <div className="row">
           <div className="col-md-9">
-            <div
-              className="logo d-flex justify-content-center"
-              style={{ marginBottom: "30px" }}
-            >
+            <div className="logo d-flex justify-content-center mb-4">
               <h1>อุปกรณ์</h1>
             </div>
 
-            <div id="products" className="row">
-              {/* Product List */}
-              {[
-                { img: ScissorsImage, name: "กรรไกร", price: 39 },
-                { img: CutterImage, name: "คัดเตอร์", price: 29 },
-                { img: GlueImage, name: "กาว", price: 29 },
-                { img: GlueStickImage, name: "กาวแท่ง", price: 20 },
-                { img: StaplerImage, name: "แม็ค", price: 35 },
-                { img: StaplesImage, name: "ลูกแม็ก", price: 15 },
-              ].map((product, index) => (
-                <div key={index} className="col-md-3 product">
-                  <img
-                    src={product.img}
-                    alt={product.name}
-                    width="150"
-                    height="150"
-                  />
-                  <h5>
-                    {product.name}
-                    <br />฿{product.price}
-                  </h5>
-                  <button
-                    className="btn btn-primary add-to-cart"
-                    onClick={() => addToCart(product.name, product.price)}
-                  >
-                    Add to Cart
-                  </button>
+            <div className="row">
+              {products.map((product) => (
+                <div key={product.id} className="col-md-3 product mb-4">
+                  <div className="card">
+                    <img src={product.img} alt={product.name} className="card-img-top" width="150px" height="150px" />
+                    <div className="card-body">
+                      <h5 className="card-title">{product.name}</h5>
+                      <p className="card-text">฿{product.price}</p>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Cart Section */}
           <div className="col-md-3">
-            <h2 style={{ marginTop: "30px" }}>
-              Cart{" "}
-              <img
-                src={CartImage}
-                alt="Cart"
-                width="34"
-                height="34"
-                style={{ marginTop: "-11px" }}
-              />
+            <h2 className="mt-3">
+              Cart <img src={cartIcon} alt="Cart" width="34px" height="34px" style={{ marginTop: "-11px" }} />
             </h2>
-
             <div id="cart" className="mt-3">
               {cart.length === 0 ? (
                 <p>No items in cart.</p>
@@ -100,13 +94,13 @@ const ToolsPage = () => {
                 <ul>
                   {cart.map((item, index) => (
                     <li key={index}>
-                      {item.productId} - ฿{item.price}
+                      {item.name} x{item.quantity} - ฿{item.price}
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            <button className="btn btn-success mt-3" onClick={printCart}>
+            <button className="btn btn-success mt-3" onClick={() => generateCartReceipt(cart)}>
               Print Cart Receipt
             </button>
           </div>
@@ -116,4 +110,4 @@ const ToolsPage = () => {
   );
 };
 
-export default ToolsPage;
+export default StationeryShop;

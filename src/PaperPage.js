@@ -1,25 +1,39 @@
-import React, { useState } from 'react';
-import './assets/nb-shop.css'; // ให้แน่ใจว่าได้ import สไตล์ที่คุณใช้
+import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./assets/nb-shop.css";
 import { useNavigate } from 'react-router-dom';
+import { generateCartReceipt } from './Cart';  // นำเข้า generateCartReceipt จาก cart.js
 
-// นำเข้ารูปภาพที่ต้องการใช้
-import A4Image from './product_img/A4.jfif';
-import A4PackImage from './product_img/A4pack.jpg';
-import ColorPaperImage from './product_img/กระดาษสี.jpg';
-import CartImage from './product_img/Cartpng.png';
+// import รูปภาพที่ใช้ใน products
+import cart from './product_img/Cartpng.png';
+import A4 from './product_img/A4.jfif';
+import A4pack from './product_img/A4pack.jpg';
+import กระดาษสี from './product_img/กระดาษสี.jpg';
 
-const PaperPage = () => {
+const products = [
+  { id: "A4", name: "A4", price: 5, img: A4, options: ["ธรรมดา", "ร้อยปอนด์"] },
+  { id: "A4pack", name: "A4 1 แพ็ค 500 แผ่น", price: 129, img: A4pack },
+  { id: "กระดาษสี", name: "กระดาษสี", price: 10, img: กระดาษสี, options: ["แดง", "เขียว", "น้ำเงิน", "เหลือง"] },
+];
+
+const StationeryShop = () => {
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate(); // ใช้ hook สำหรับการนำทาง
+  const navigate = useNavigate();
 
-  const addToCart = (productId, price) => {
-    const newCart = [...cart, { productId, price }];
-    setCart(newCart);
-  };
-
-  const printCart = () => {
-    const cartItems = cart.map(item => `${item.productId} - ฿${item.price}`).join('\n');
-    alert(`รายการสินค้าในตะกร้า:\n${cartItems}`);
+  const addToCart = (product, option) => {
+    // ตรวจสอบว่ามีสินค้าชนิดเดียวกันในตะกร้าหรือยัง
+    const existingItemIndex = cart.findIndex(item => item.id === product.id && item.option === option);
+    
+    if (existingItemIndex !== -1) {
+      // ถ้ามีสินค้าแล้ว, เพิ่มจำนวนและราคา
+      const updatedCart = [...cart];
+      updatedCart[existingItemIndex].quantity += 1;
+      updatedCart[existingItemIndex].price += product.price;
+      setCart(updatedCart);
+    } else {
+      // ถ้าไม่มีสินค้าในตะกร้า, เพิ่มสินค้าใหม่
+      setCart([...cart, { ...product, option, quantity: 1 }]);
+    }
   };
 
   return (
@@ -28,8 +42,7 @@ const PaperPage = () => {
         <nav>
           <h1>โอเคเครื่องเขียน</h1>
           <ul>
-            {/* ใช้ navigate(-1) เพื่อกลับไปหน้าก่อนหน้า */}
-            <button className="card__button" onClick={() => navigate(-1)}>Back</button>
+            <li><button onClick={() => navigate(-1)}>Back</button></li>
           </ul>
         </nav>
       </header>
@@ -37,69 +50,53 @@ const PaperPage = () => {
       <div className="container mt-5">
         <div className="row">
           <div className="col-md-9">
-            <div className="logo d-flex justify-content-center" style={{ marginBottom: '30px' }}>
-              <h1>กระดาษ</h1>
+            <div className="logo d-flex justify-content-center mb-4">
+              <h1>สินค้า</h1>
             </div>
 
-            <div id="products" className="row">
-              {/* สินค้า 1 */}
-              <div className="col-md-3 product">
-                <img src={A4Image} alt="A4" width="150" height="150" />
-                <h5>A4<br />฿5</h5>
-                <select className="form-control paper-type" data-product-id="A4">
-                  <option value="ธรรมดา">ธรรมดา</option>
-                  <option value="ร้อยปอนด์">ร้อยปอนด์</option>
-                </select>
-                <button className="btn btn-primary add-to-cart" onClick={() => addToCart('A4', 5)}>
-                  Add to Cart
-                </button>
-              </div>
-
-              {/* สินค้า 2 */}
-              <div className="col-md-3 product">
-                <img src={A4PackImage} alt="A4 1 แพ็ค" width="150" height="150" />
-                <h5>A4 1 แพ็ค 500 แผ่น<br />฿129</h5>
-                <button className="btn btn-primary add-to-cart" onClick={() => addToCart('A4 1 แพ็ค', 129)}>
-                  Add to Cart
-                </button>
-              </div>
-
-              {/* สินค้า 3 */}
-              <div className="col-md-3 product">
-                <img src={ColorPaperImage} alt="กระดาษสี" width="150" height="150" />
-                <h5>กระดาษสี<br />฿10</h5>
-                <select className="form-control paper-color" data-product-id="กระดาษสี">
-                  <option value="แดง">แดง</option>
-                  <option value="เขียว">เขียว</option>
-                  <option value="น้ำเงิน">น้ำเงิน</option>
-                  <option value="เหลือง">เหลือง</option>
-                </select>
-                <button className="btn btn-primary add-to-cart" onClick={() => addToCart('กระดาษสี', 10)}>
-                  Add to Cart
-                </button>
-              </div>
+            <div className="row">
+              {products.map((product) => (
+                <div key={product.id} className="col-md-3 product">
+                  <img src={product.img} alt={product.name} width="150px" height="150px" />
+                  <h5>
+                    {product.name}
+                    <br />฿{product.price}
+                  </h5>
+                  {product.options && (
+                    <select className="form-control mb-2" onChange={(e) => addToCart(product, e.target.value)}>
+                      {product.options.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  )}
+                  <button className="btn btn-primary" onClick={() => addToCart(product, product.options ? product.options[0] : null)}>
+                    Add to Cart
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* ส่วนของตะกร้า */}
           <div className="col-md-3">
-            <h2 style={{ marginTop: '30px' }}>
-              ตะกร้า
-              <img src={CartImage} alt="Cartpng" width="34" height="34" style={{ marginTop: '-11px' }} />
+            <h2 className="mt-3">
+              Cart
+              <img src={cart} alt="Cart" width="34px" height="34px" style={{ marginTop: "-11px" }} />
             </h2>
 
-            <div id="cart" className="mt-3">
-              {cart.length === 0 ? <p>ไม่มีสินค้าในตะกร้า.</p> : (
+            <div className="mt-3">
+              {cart.length === 0 ? (
+                <p>No items in cart.</p>
+              ) : (
                 <ul>
                   {cart.map((item, index) => (
-                    <li key={index}>{item.productId} - ฿{item.price}</li>
+                    <li key={index}>
+                      {item.name} {item.option ? `(${item.option})` : ""} x{item.quantity} - ฿{item.price}
+                    </li>
                   ))}
                 </ul>
               )}
             </div>
-            <button className="btn btn-success mt-3" onClick={printCart}>
-              พิมพ์ใบเสร็จ
-            </button>
+            <button className="btn btn-success mt-3" onClick={() => generateCartReceipt(cart)}>Print Cart Receipt</button>
           </div>
         </div>
       </div>
@@ -107,4 +104,4 @@ const PaperPage = () => {
   );
 };
 
-export default PaperPage;
+export default StationeryShop;
